@@ -737,11 +737,35 @@ const handleAddItem = async () => {
     });
   };
 
-  const deleteOrganization = (id) => {
+  const deleteOrganization = async (id) => {
+  try {
+    if (supabase) {
+      const { error } = await supabase
+        .from('organizations')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    }
+    
     setOrganizations(organizations.filter(org => org.id !== id));
-  };
+  } catch (error) {
+    console.error('Error deleting organization:', error);
+    alert('Error deleting organization. Please try again.');
+  }
+};
 
-  const deleteProvider = (providerId, organizationId = null) => {
+ const deleteProvider = async (providerId, organizationId = null) => {
+  try {
+    if (supabase) {
+      const { error } = await supabase
+        .from('providers')
+        .delete()
+        .eq('id', providerId);
+      
+      if (error) throw error;
+    }
+    
     if (organizationId) {
       setOrganizations(organizations.map(org => {
         if (org.id === organizationId) {
@@ -755,7 +779,11 @@ const handleAddItem = async () => {
     } else {
       setIndependentProviders(independentProviders.filter(p => p.id !== providerId));
     }
-  };
+  } catch (error) {
+    console.error('Error deleting provider:', error);
+    alert('Error deleting provider. Please try again.');
+  }
+};
 
   const totalResults = searchResults.organizations.length + searchResults.independentProviders.length;
 
