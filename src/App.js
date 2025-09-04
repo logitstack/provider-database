@@ -25,6 +25,7 @@ function App() {
     insurances: [],
     specialty: '',
     phone: '',
+    fax: '',
     address: '',
     npi: '' 
   });
@@ -70,6 +71,7 @@ useEffect(() => {
         name: "Central Medical Group",
         insurances: ["Molina Marketplace", "Molina Medicaid", "Blue Cross", "Medicare"],
         phone: "(555) 123-4567",
+        fax: "(555) 123-4568",
         address: "123 Main St, Suite 100",
         npi: "1234567890",
         providers: [
@@ -78,6 +80,7 @@ useEffect(() => {
             name: "Dr. Sarah Smith",
             specialty: "Dermatology",
             phone: "(555) 123-4567",
+            fax: "(555) 123-4569",
             address: "123 Main St, Suite 100",
             npi: "1234567891",
             insurances: ["Molina Marketplace", "Blue Cross"],
@@ -88,6 +91,7 @@ useEffect(() => {
             name: "Dr. Michael Johnson",
             specialty: "Internal Medicine",
             phone: "(555) 123-4567",
+            fax: "(555) 123-4570",
             address: "123 Main St, Suite 100",
             npi: "1234567892",
             insurances: ["Medicare", "Molina Medicaid"],
@@ -100,6 +104,7 @@ useEffect(() => {
         name: "Skin Care Specialists",
         insurances: ["Molina Marketplace", "United Healthcare", "Cigna"],
         phone: "(555) 234-5678",
+        fax: "(555) 234-5679",
         address: "456 Oak Ave, Floor 2",
         npi: "1234567893",
         providers: [
@@ -108,6 +113,7 @@ useEffect(() => {
             name: "Dr. Emily Chen",
             specialty: "Dermatology",
             phone: "(555) 234-5678",
+            fax: "(555) 234-5680",
             address: "456 Oak Ave, Floor 2",
             npi: "1234567894",
             insurances: ["Molina Marketplace", "Cigna"],
@@ -124,6 +130,7 @@ useEffect(() => {
         specialty: "Orthopedic Surgery",
         insurances: ["Molina Medicaid", "Blue Cross", "United Healthcare"],
         phone: "(555) 456-7890",
+        fax: "(555) 456-7891",
         address: "321 Elm St, Suite 5",
         npi: "1234567895"
       }
@@ -225,7 +232,6 @@ const loadData = async () => {
 };
 
   // Smart search results
- // Smart search results
 const searchResults = useMemo(() => {
   if (!searchQuery.trim()) {
     return { organizations, independentProviders };
@@ -430,6 +436,7 @@ const searchResults = useMemo(() => {
     setEditData({
       name: org.name,
       phone: org.phone || '',
+      fax: org.fax || '',
       address: org.address || '',
       npi: org.npi || '',
       insurances: [...(org.insurances || [])]
@@ -444,6 +451,7 @@ const searchResults = useMemo(() => {
       name: provider.name,
       specialty: provider.specialty || '',
       phone: provider.phone || '',
+      fax: provider.fax || '',
       address: provider.address || '',
       npi: provider.npi || '',
       insurances: [...(provider.insurances || [])],
@@ -502,6 +510,7 @@ const searchResults = useMemo(() => {
             .update({
               name: editData.name,
               phone: editData.phone,
+              fax: editData.fax,
               address: editData.address,
               npi: editData.npi,
               insurances: editData.insurances
@@ -518,6 +527,7 @@ const searchResults = useMemo(() => {
               ...org,
               name: editData.name,
               phone: editData.phone,
+              fax: editData.fax,
               address: editData.address,
               npi: editData.npi,
               insurances: editData.insurances
@@ -533,6 +543,7 @@ const searchResults = useMemo(() => {
               name: editData.name,
               specialty: editData.specialty,
               phone: editData.phone,
+              fax: editData.fax,
               address: editData.address,
               npi: editData.npi,
               insurances: editData.insurances
@@ -556,6 +567,7 @@ const searchResults = useMemo(() => {
                       name: editData.name,
                       specialty: editData.specialty,
                       phone: editData.phone,
+                      fax: editData.fax,
                       address: editData.address,
                       npi: editData.npi,
                       insurances: editData.insurances
@@ -576,6 +588,7 @@ const searchResults = useMemo(() => {
                 name: editData.name,
                 specialty: editData.specialty,
                 phone: editData.phone,
+                fax: editData.fax,
                 address: editData.address,
                 npi: editData.npi,
                 insurances: editData.insurances
@@ -604,6 +617,7 @@ const handleAddItem = async () => {
           .insert([{
             name: newItem.name,
             phone: newItem.phone,
+            fax: newItem.fax,
             address: newItem.address,
             insurances: newItem.insurances,
             npi: newItem.npi 
@@ -631,6 +645,7 @@ const handleAddItem = async () => {
             name: newItem.name,
             specialty: newItem.specialty,
             phone: newItem.phone,
+            fax: newItem.fax,
             address: newItem.address,
             insurances: newItem.insurances,
             organization_id: selectedOrgForProvider,
@@ -657,6 +672,7 @@ const handleAddItem = async () => {
             name: newItem.name,
             specialty: newItem.specialty,
             phone: newItem.phone,
+            fax: newItem.fax,
             address: newItem.address,
             insurances: newItem.insurances,
             npi: newItem.npi
@@ -691,7 +707,7 @@ const handleAddItem = async () => {
     }
 
     // Reset form
-    setNewItem({ name: '', insurances: [], specialty: '', phone: '', address: '',  npi: ''});
+    setNewItem({ name: '', insurances: [], specialty: '', phone: '', fax: '', address: '',  npi: ''});
     setSelectedOrgForProvider('');
     setCustomInsurance('');
     setAutofillResults([]);
@@ -983,6 +999,13 @@ const handleAddItem = async () => {
             />
             <input
               type="text"
+              placeholder="Fax Number"
+              value={newItem.fax}
+              onChange={(e) => setNewItem({...newItem, fax: e.target.value})}
+              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <input
+              type="text"
               placeholder="Address"
               value={newItem.address}
               onChange={(e) => setNewItem({...newItem, address: e.target.value})}
@@ -1124,6 +1147,13 @@ const handleAddItem = async () => {
                           />
                           <input
                             type="text"
+                            placeholder="Fax Number"
+                            value={editData.fax || ''}
+                            onChange={(e) => setEditData({...editData, fax: e.target.value})}
+                            className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <input
+                            type="text"
                             placeholder="Address"
                             value={editData.address || ''}
                             onChange={(e) => setEditData({...editData, address: e.target.value})}
@@ -1243,6 +1273,7 @@ const handleAddItem = async () => {
                           </div>
                           <div className="mb-3 text-gray-600">
                             <p>📞 {org.phone}</p>
+                            {org.fax && <p>📠 {org.fax}</p>}
                             <p>📍 {org.address}</p>
                             {org.npi && <p>🏥 NPI: {org.npi}</p>}
                           </div>
@@ -1314,6 +1345,13 @@ const handleAddItem = async () => {
                                     placeholder="Phone Number"
                                     value={editData.phone || ''}
                                     onChange={(e) => setEditData({...editData, phone: e.target.value})}
+                                    className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Fax Number"
+                                    value={editData.fax || ''}
+                                    onChange={(e) => setEditData({...editData, fax: e.target.value})}
                                     className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                   />
                                   <input
@@ -1428,6 +1466,7 @@ const handleAddItem = async () => {
                                   </div>
                                   <div className="text-gray-600 space-y-1">
                                     <p>📞 {provider.phone}</p>
+                                    {provider.fax && <p>📠 {provider.fax}</p>}
                                     {provider.address && <p>📍 {provider.address}</p>}
                                     {provider.npi && <p>🏥 NPI: {provider.npi}</p>}
                                   </div>
@@ -1506,6 +1545,13 @@ const handleAddItem = async () => {
                           placeholder="Phone Number"
                           value={editData.phone || ''}
                           onChange={(e) => setEditData({...editData, phone: e.target.value})}
+                          className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Fax Number"
+                          value={editData.fax || ''}
+                          onChange={(e) => setEditData({...editData, fax: e.target.value})}
                           className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         <input
@@ -1623,6 +1669,7 @@ const handleAddItem = async () => {
                         </div>
                         <div className="mb-3 text-gray-600">
                           <p>📞 {provider.phone}</p>
+                          {provider.fax && <p>📠 {provider.fax}</p>}
                           <p>📍 {provider.address}</p>
                           {provider.npi && <p>🏥 NPI: {provider.npi}</p>}
                         </div>

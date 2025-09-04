@@ -75,6 +75,7 @@ export default async function handler(req, res) {
               name: `Dr. ${provider.basic.first_name} ${provider.basic.last_name}`,
               address: formatAddress(location),
               phone: formatPhone(location?.telephone_number),
+              fax: formatPhone(location?.fax_number) || 'Fax not available',
               specialty: taxonomy?.desc || 'Not specified',
               npi: provider.number,
               source: 'NPI Registry',
