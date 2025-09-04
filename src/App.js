@@ -210,73 +210,87 @@ const loadData = async () => {
 
   // Fuzzy matching function
   const fuzzyMatch = (text, query) => {
-    if (!query) return true;
-    
-    const normalizeText = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const normalizedText = normalizeText(text);
-    const normalizedQuery = normalizeText(query);
-    
-    if (normalizedText.includes(normalizedQuery)) return true;
-    
-    let score = 0;
-    let queryIndex = 0;
-    
-    for (let i = 0; i < normalizedText.length && queryIndex < normalizedQuery.length; i++) {
-      if (normalizedText[i] === normalizedQuery[queryIndex]) {
-        score++;
-        queryIndex++;
-      }
-    }
-    
-    return score / normalizedQuery.length >= 0.7;
-  };
+  if (!query) return true;
+  
+  const normalizeText = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const normalizedText = normalizeText(text);
+  
+  // Split query into words and check if ALL words match
+  const queryWords = query.toLowerCase().split(' ').filter(word => word.length > 0);
+  
+  return queryWords.every(word => {
+    const normalizedWord = normalizeText(word);
+    return normalizedText.includes(normalizedWord);
+  });
+};
 
   // Smart search results
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return { organizations, independentProviders };
+ // Smart search results
+const searchResults = useMemo(() => {
+  if (!searchQuery.trim()) {
+    return { organizations, independentProviders };
+  }
+
+  const query = searchQuery.toLowerCase();
+  const queryWords = query.split(' ').filter(word => word.length > 0);
+  
+  // Function to check if all query words match anywhere in the provider's data
+  const matchesAllWords = (provider, orgName = '') => {
+    const searchableText = [
+      provider.name || '',
+      provider.specialty || '',
+      orgName,
+      ...(provider.insurances || [])
+    ].join(' ').toLowerCase();
+    
+    return queryWords.every(word => searchableText.includes(word));
+  };
+
+  const matchingOrgs = [];
+  const matchingIndependent = [];
+
+  organizations.forEach(org => {
+    let orgMatches = false;
+    let matchingOrgProviders = [];
+
+    // Check if organization itself matches all search words
+    const orgSearchableText = [
+      org.name || '',
+      ...(org.insurances || [])
+    ].join(' ').toLowerCase();
+    
+    if (queryWords.every(word => orgSearchableText.includes(word))) {
+      orgMatches = true;
     }
 
-    const query = searchQuery.toLowerCase();
-    const matchingOrgs = [];
-    const matchingIndependent = [];
+    // Check providers within the organization
+    if (org.providers) {
+      org.providers.forEach(provider => {
+        if (matchesAllWords(provider, org.name)) {
+          matchingOrgProviders.push(provider);
+        }
+      });
+    }
 
-    organizations.forEach(org => {
-      let orgMatches = false;
-      let matchingOrgProviders = [];
+    // Include organization if it matches or has matching providers
+    if (orgMatches || matchingOrgProviders.length > 0) {
+      matchingOrgs.push({
+        ...org,
+        providers: orgMatches ? (org.providers || []) : matchingOrgProviders,
+        highlighted: orgMatches
+      });
+    }
+  });
 
-      if (fuzzyMatch(org.name, query) || 
-          (org.insurances && org.insurances.some(insurance => fuzzyMatch(insurance, query)))) {
-        orgMatches = true;
-      }
+  // Check independent providers
+  independentProviders.forEach(provider => {
+    if (matchesAllWords(provider)) {
+      matchingIndependent.push(provider);
+    }
+  });
 
-      if (org.providers) {
-        org.providers.forEach(provider => {
-          if (fuzzyMatch(provider.name, query) || fuzzyMatch(provider.specialty, query)) {
-            matchingOrgProviders.push(provider);
-          }
-        });
-      }
-
-      if (orgMatches || matchingOrgProviders.length > 0) {
-        matchingOrgs.push({
-          ...org,
-          providers: orgMatches ? (org.providers || []) : matchingOrgProviders,
-          highlighted: orgMatches
-        });
-      }
-    });
-
-    independentProviders.forEach(provider => {
-      if (fuzzyMatch(provider.name, query) || 
-          fuzzyMatch(provider.specialty, query) ||
-          (provider.insurances && provider.insurances.some(insurance => fuzzyMatch(insurance, query)))) {
-        matchingIndependent.push(provider);
-      }
-    });
-
-    return { organizations: matchingOrgs, independentProviders: matchingIndependent };
-  }, [searchQuery, organizations, independentProviders]);
+  return { organizations: matchingOrgs, independentProviders: matchingIndependent };
+}, [searchQuery, organizations, independentProviders]);
 
   // NPI Registry search via backend (to avoid CORS)
   const searchProviderInfo = async (searchName) => {
